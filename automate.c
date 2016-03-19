@@ -36,7 +36,25 @@
 
 
 int get_max_etat( const Automate* automate ){
-	A_FAIRE_RETURN( 0 );
+	
+	if(taille_ensemble(get_etats(automate)) == 0)
+		return INT_MIN;
+	else
+	{
+		Ensemble_iterateur ti = premier_iterateur_ensemble( get_etats(automate) );
+		intptr_t max_val = 0;
+		
+		int i;
+		for(i = 0; i < taille_ensemble(get_etats(automate)); i++)
+		{
+			if(get_element(ti) > max_val)
+				max_val = get_element(ti);
+				
+			ti = iterateur_suivant_ensemble(ti);
+		}
+		
+		return max_val;
+	}
 }
 
 void action_get_min_etat( const intptr_t element, void* data ){
