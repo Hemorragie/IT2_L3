@@ -35,6 +35,7 @@
 #include <math.h>
 
 
+// je sais pas encore si ça marche, leur tests font n'importe quoi => à voir
 int get_max_etat( const Automate* automate ){
 	
 	if(taille_ensemble(get_etats(automate)) == 0)
