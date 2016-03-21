@@ -34,28 +34,17 @@
 
 #include <math.h>
 
+void action_get_max_etat( const intptr_t element, void* data ){
+	int * max = (int*) data;
+	if( *max < element ) *max = element;
+}
 
-// je sais pas encore si ça marche, leur tests font n'importe quoi => à voir
 int get_max_etat( const Automate* automate ){
-	
-	if(taille_ensemble(get_etats(automate)) == 0)
-		return INT_MIN;
-	else
-	{
-		Ensemble_iterateur ti = premier_iterateur_ensemble( get_etats(automate) );
-		intptr_t max_val = 0;
-		
-		int i;
-		for(i = 0; i < taille_ensemble(get_etats(automate)); i++)
-		{
-			if(get_element(ti) > max_val)
-				max_val = get_element(ti);
-				
-			ti = iterateur_suivant_ensemble(ti);
-		}
-		
-		return max_val;
-	}
+	int max = INT_MIN;
+
+	pour_tout_element( automate->etats, action_get_max_etat, &max );
+
+	return max;
 }
 
 void action_get_min_etat( const intptr_t element, void* data ){
