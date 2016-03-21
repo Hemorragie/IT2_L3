@@ -482,11 +482,24 @@ Automate * mot_to_automate( const char * mot ){
 Automate * creer_union_des_automates(
 	const Automate * automate_1, const Automate * automate_2
 ){
-	A_FAIRE_RETURN( NULL );
+	Automate *automate_union = creer_automate();
+	automate_union->etats = creer_union_ensemble( get_etats(automate_1), get_etats(automate_2) );
+	automate_union->initiaux = creer_union_ensemble( automate_1->initiaux, automate_2->initiaux );
+	automate_union->finaux = creer_union_ensemble( automate_1->finaux, automate_2->finaux );
+	automate_union->alphabet = creer_union_ensemble( automate_1->alphabet, automate_2->alphabet );
+	
+	return automate_union;
+}
+
+void get_etats_accessibles(const intptr_t cle, intptr_t valeur, void* data){
+	// faire un balayage pour récupérer tous les états accessibles depuis le sommet donné
 }
 
 Ensemble* etats_accessibles( const Automate * automate, int etat ){
-	A_FAIRE_RETURN( NULL ); 
+	Ensemble *ens = creer_ensemble(NULL, NULL, NULL);
+	// je sais pas trop comment passer l'état à utiliser pour la recherche
+	
+	pour_toute_valeur_table(automate->transitions, get_etats_accessibles, &ens);
 }
 
 Ensemble* accessibles( const Automate * automate ){
