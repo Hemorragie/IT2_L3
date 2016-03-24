@@ -564,8 +564,8 @@ void change_transition(  const intptr_t cle, intptr_t valeur, void* data  ){
 
 Automate *miroir( const Automate * automate){
 	n_automate = creer_automate();
-	n_automate->initiaux = get_initiaux(automate);
-	n_automate->finaux = get_finaux(automate);
+	n_automate->initiaux = get_finaux(automate);
+	n_automate->finaux = get_initiaux(automate);
 	
 	Table *n_table = creer_table(NULL, NULL, NULL);
 	
