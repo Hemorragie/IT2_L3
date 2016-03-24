@@ -34,6 +34,11 @@
 
 #include <math.h>
 
+/* Signatures de nos fonctions */
+
+Ensemble* delta1_total(	const Automate* automate, int origine );
+Ensemble* delta_total( const Automate* automate, int origine );
+
 void action_get_max_etat( const intptr_t element, void* data ){
 	int * max = (int*) data;
 	if( *max < element ) *max = element;
@@ -101,7 +106,7 @@ Automate * creer_automate(){
 	automate->etats = creer_ensemble( NULL, NULL, NULL );
 	automate->alphabet = creer_ensemble( NULL, NULL, NULL );
 	automate->transitions = creer_table(
-		( int(*)(const intptr_t, const intptr_t) ) comparer_cle , 
+		( int(*)(const intptr_t, const intptr_t) ) comparer_cle ,
 		( intptr_t (*)( const intptr_t ) ) copier_cle,
 		( void(*)(intptr_t) ) supprimer_cle
 	);
@@ -264,6 +269,22 @@ Ensemble * delta1(
 	return res; 
 }
 
+Ensemble* delta1_total(
+	const Automate* automate, int origine
+){
+	Ensemble * res = creer_ensemble( NULL, NULL, NULL );
+	const Ensemble * alpha = get_alphabet( automate );
+	
+	Ensemble_iterateur it;
+	for(
+		it = premier_iterateur_ensemble( alpha );
+		! iterateur_ensemble_est_vide( it );
+		it = iterateur_suivant_ensemble( it )){	
+		res = creer_union_ensemble( res, delta1( automate, get_element( premier_iterateur_ensemble( res ) ), get_element( it ) ) );
+	}
+	return res; 
+}
+
 Ensemble * delta(
 	const Automate* automate, const Ensemble * etats_courants, char lettre
 ){
@@ -282,6 +303,22 @@ Ensemble * delta(
 	}
 
 	return res;
+}
+
+Ensemble* delta_total(
+	const Automate* automate, int origine
+){
+	Ensemble * res = creer_ensemble( NULL, NULL, NULL );
+	const Ensemble * alpha = get_alphabet( automate );
+	
+	Ensemble_iterateur it;
+	for(
+		it = premier_iterateur_ensemble( alpha );
+		! iterateur_ensemble_est_vide( it );
+		it = iterateur_suivant_ensemble( it )){	
+		res = creer_union_ensemble( res, delta1( automate, origine, get_element( it ) ) );
+	}
+	return res; 
 }
 
 Ensemble * delta_star(
@@ -491,23 +528,31 @@ Automate * creer_union_des_automates(
 	return automate_union;
 }
 
-void get_etats_accessibles(const intptr_t cle, intptr_t valeur, void* data){
-	// faire un balayage pour récupérer tous les états accessibles depuis le sommet donné
-}
-
 Ensemble* etats_accessibles( const Automate * automate, int etat ){
-	Ensemble *ens = creer_ensemble(NULL, NULL, NULL);
-	// je sais pas trop comment passer l'état à utiliser pour la recherche
+	Ensemble* ens = creer_ensemble( NULL, NULL, NULL );
 	
-	pour_toute_valeur_table(automate->transitions, get_etats_accessibles, &ens);
+	ens = delta_total( automate, etat );
+	return ens;
 }
 
 Ensemble* accessibles( const Automate * automate ){
-	A_FAIRE_RETURN( NULL ); 
+	Ensemble * res = creer_ensemble( NULL, NULL, NULL );
+	
+	Ensemble_iterateur it;
+	for(
+		it = premier_iterateur_ensemble( get_initiaux( automate ));
+		! iterateur_ensemble_est_vide( it );
+		it = iterateur_suivant_ensemble( it )
+	){
+		res = creer_union_ensemble( res, etats_accessibles( automate, get_element( it ) ) );
+	}
+	return res;
 }
 
 Automate *automate_accessible( const Automate * automate ){
-	A_FAIRE_RETURN( NULL ); 
+	Automate * res = copier_automate(automate);
+	res->etats = accessibles( automate );
+	return res;
 }
 
 Automate *miroir( const Automate * automate){
