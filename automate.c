@@ -555,8 +555,23 @@ Automate *automate_accessible( const Automate * automate ){
 	return res;
 }
 
+// à revoir, je m'enbrouille
+void change_transition(  const intptr_t cle, intptr_t valeur, void* data  ){
+	Cle *n_cle;
+	initialiser_cle( &n_cle, valeur, lettre );
+	add_table(data, n_cle, valeur);
+}
+
 Automate *miroir( const Automate * automate){
-	A_FAIRE_RETURN( NULL ); 
+	n_automate = creer_automate();
+	n_automate->initiaux = get_initiaux(automate);
+	n_automate->finaux = get_finaux(automate);
+	
+	Table *n_table = creer_table(NULL, NULL, NULL);
+	
+	pour_toute_cle_valeur_table( automate->transitions,	change_transition,	&n_table);
+
+	n_automate;
 }
 
 Automate * creer_automate_du_melange(
