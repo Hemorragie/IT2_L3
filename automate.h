@@ -359,6 +359,17 @@ int get_min_etat( const Automate* automate );
 Automate* copier_automate( const Automate* automate );
 
 /**
+ * @brief @todo Renvoie l'automate miroir d'un automate.
+ *
+ * Il s'agit de l'automate qui reconnaît les mots renversés du langage associé
+ * à l'automate passé en paramètre.
+ *
+ * @param automate Un automate.
+ * @return L'automate miroir.
+ */ 
+Automate *miroir( const Automate * automate);
+
+/**
  * @brief Renvoie un automate qui reconnaît un unique mot passé en paramètre.
  *
  * @param mot le mot à reconnaître.

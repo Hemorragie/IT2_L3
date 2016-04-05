@@ -473,7 +473,16 @@ int le_mot_est_reconnu( const Automate* automate, const char* mot ){
 	
 	int result = 0;
 
-	Ensemble_iterateur it;
+	Ensemble_iterateur it;/**
+ * @brief @todo Renvoie l'automate miroir d'un automate.
+ *
+ * Il s'agit de l'automate qui reconnaît les mots renversés du langage associé
+ * à l'automate passé en paramètre.
+ *
+ * @param automate Un automate.
+ * @return L'automate miroir.
+ */ 
+Automate *miroir( const Automate * automate);
 	for(
 		it = premier_iterateur_ensemble( arrivee );
 		! iterateur_ensemble_est_vide( it );

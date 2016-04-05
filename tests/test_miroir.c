@@ -40,14 +40,14 @@ int test_miroir(){
 			1
 			&& aut
 			&& le_mot_est_reconnu( aut, "ccb" )
-			/*&& le_mot_est_reconnu( aut, "cba" )
+			&& le_mot_est_reconnu( aut, "cba" )
 			&& le_mot_est_reconnu( aut, "b" )
 			&& le_mot_est_reconnu( aut, "baaa" )
 			&& ! le_mot_est_reconnu( aut, "" )
 			&& ! le_mot_est_reconnu( aut, "a" )
 			&& ! le_mot_est_reconnu( aut, "aa" )
 			&& ! le_mot_est_reconnu( aut, "bc" )
-			&& ! le_mot_est_reconnu( aut, "abc" )*/
+			&& ! le_mot_est_reconnu( aut, "abc" ) 
 			, result
 		);
 		liberer_automate( aut );
