@@ -37,7 +37,6 @@
 /* Signatures de nos fonctions */
 
 Ensemble* delta1_total(	const Automate* automate, int origine );
-Ensemble* delta_total( const Automate* automate, int origine );
 
 void action_get_max_etat( const intptr_t element, void* data ){
 	int * max = (int*) data;
@@ -269,6 +268,7 @@ Ensemble * delta1(
 	return res; 
 }
 
+// Fonction qui fait la même chose que delta1 mais pour toutes les lettres
 Ensemble* delta1_total(
 	const Automate* automate, int origine
 ){
@@ -280,7 +280,7 @@ Ensemble* delta1_total(
 		it = premier_iterateur_ensemble( alpha );
 		! iterateur_ensemble_est_vide( it );
 		it = iterateur_suivant_ensemble( it )){	
-		res = creer_union_ensemble( res, delta1( automate, get_element( premier_iterateur_ensemble( res ) ), get_element( it ) ) );
+		res = creer_union_ensemble( res, delta1( automate, origine, get_element( it ) ) );
 	}
 	return res; 
 }
@@ -303,22 +303,6 @@ Ensemble * delta(
 	}
 
 	return res;
-}
-
-Ensemble* delta_total(
-	const Automate* automate, int origine
-){
-	Ensemble * res = creer_ensemble( NULL, NULL, NULL );
-	const Ensemble * alpha = get_alphabet( automate );
-	
-	Ensemble_iterateur it;
-	for(
-		it = premier_iterateur_ensemble( alpha );
-		! iterateur_ensemble_est_vide( it );
-		it = iterateur_suivant_ensemble( it )){	
-		res = creer_union_ensemble( res, delta1( automate, origine, get_element( it ) ) );
-	}
-	return res; 
 }
 
 Ensemble * delta_star(
@@ -529,16 +513,24 @@ Automate * creer_union_des_automates(
 }
 
 Ensemble* etats_accessibles( const Automate * automate, int etat ){
+	// On crée un nouvel ensemble	
 	Ensemble* ens = creer_ensemble( NULL, NULL, NULL );
 	
-	ens = delta_total( automate, etat );
+	ens = delta1_total( automate, etat );
 	return ens;
 }
 
 Ensemble* accessibles( const Automate * automate ){
+
+	// On créer un nouvel ensemble qui accueillera les états accessibles
 	Ensemble * res = creer_ensemble( NULL, NULL, NULL );
 	
+	// On crée un itérateur pour parcourir les ensembles
 	Ensemble_iterateur it;
+
+	/* Pour chaque état initial de l'automate , on crée l'union de l'ensemble
+	 * résultant et de l'ensemble des états accessibles en partant de l'état
+	 * initial actuel */
 	for(
 		it = premier_iterateur_ensemble( get_initiaux( automate ));
 		! iterateur_ensemble_est_vide( it );
@@ -550,27 +542,45 @@ Ensemble* accessibles( const Automate * automate ){
 }
 
 Automate *automate_accessible( const Automate * automate ){
-	Automate * res = copier_automate(automate);
+
+	// On crée un clone de l'automate passé en paramètre
+	Automate * res = copier_automate( automate );
+
+	// On affecte les états accessibles de l'automate passé en paramètre
 	res->etats = accessibles( automate );
 	return res;
 }
 
-// à revoir, je m'enbrouille
-void change_transition(  const intptr_t cle, intptr_t valeur, void* data  ){
-	Cle *n_cle = (Cle *) cle;
-	initialiser_cle( n_cle, valeur, ((Cle *)cle)->lettre );
-	add_table(data, (intptr_t) n_cle, ((Cle *)cle)->origine);
+// Fonction appellée pour chaque transition
+void change_transition(  int origine, char lettre, int fin, void* data ){
+	// Ajout d'une transition tel que les états origine et fin sont inversés
+	ajouter_transition ( data, fin, lettre, origine );
 }
 
+// Fonction permettant de faire le miroir d'un automate passé en paramètre
 Automate *miroir( const Automate * automate){
+
+	// On crée l'automate qui sera le miroir
 	Automate* n_automate = creer_automate();
-	n_automate->initiaux = automate->finaux;
-	n_automate->finaux = automate->initiaux;
+
+	/* On copie les états finaux de l'automate passé en paramètre dans 
+	 * l'ensemble des états initiaux de l'automate miroir */
+	n_automate->initiaux = copier_ensemble( automate->finaux );
+
+	// On fait pareil pour les états finaux avec les états initiaux de l'automate
+	n_automate->finaux = copier_ensemble( automate->initiaux );
+
+	// RQ: On aura pu utiliser la fonction swap_ensemble aussi...
 	
-	Table *n_table = creer_table(NULL, NULL, NULL);
-	pour_toute_cle_valeur_table( automate->transitions,	change_transition,	&n_table);
-	
-	n_automate->transitions = n_table;
+	// On créer et instancie la table de transitions
+	n_automate->transitions = creer_table(
+		( int(*)(const intptr_t, const intptr_t) ) comparer_cle ,
+		( intptr_t (*)( const intptr_t ) ) copier_cle,
+		( void(*)(intptr_t) ) supprimer_cle
+	);
+
+	// Puis pour chaque transition, on exécute la fonction change_transition
+	pour_toute_transition( automate, change_transition, n_automate );
 
 	return n_automate;
 }
@@ -579,9 +589,5 @@ Automate * creer_automate_du_melange(
 	const Automate* automate_1,  const Automate* automate_2
 ){
 	A_FAIRE_RETURN( NULL ); 
-}
-
-Automate * creer_automate_deterministe( const Automate* automate ){
-	A_FAIRE_RETURN( NULL );
 }
 
