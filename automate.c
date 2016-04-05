@@ -272,10 +272,17 @@ Ensemble * delta1(
 Ensemble* delta1_total(
 	const Automate* automate, int origine
 ){
+	// On crée un nouvel ensemble
 	Ensemble * res = creer_ensemble( NULL, NULL, NULL );
+
+	// On crée un ensemble contenant l'alphabet de l'automate
 	const Ensemble * alpha = get_alphabet( automate );
 	
+	// On crée un itérateur pour parcourir les ensembles
 	Ensemble_iterateur it;
+
+	/* Pour chaque lettre on va chercher les voisins pour l'état "origine"
+	 * et on crée l'union avec l'ensemble résultant */
 	for(
 		it = premier_iterateur_ensemble( alpha );
 		! iterateur_ensemble_est_vide( it );
@@ -473,16 +480,7 @@ int le_mot_est_reconnu( const Automate* automate, const char* mot ){
 	
 	int result = 0;
 
-	Ensemble_iterateur it;/**
- * @brief @todo Renvoie l'automate miroir d'un automate.
- *
- * Il s'agit de l'automate qui reconnaît les mots renversés du langage associé
- * à l'automate passé en paramètre.
- *
- * @param automate Un automate.
- * @return L'automate miroir.
- */ 
-Automate *miroir( const Automate * automate);
+	Ensemble_iterateur it;
 	for(
 		it = premier_iterateur_ensemble( arrivee );
 		! iterateur_ensemble_est_vide( it );
@@ -525,7 +523,9 @@ Ensemble* etats_accessibles( const Automate * automate, int etat ){
 	// On crée un nouvel ensemble	
 	Ensemble* ens = creer_ensemble( NULL, NULL, NULL );
 	
+	// On appelle delta1_total qui pour l'état courant va rechercher pour toute lettre les voisins
 	ens = delta1_total( automate, etat );
+
 	return ens;
 }
 
