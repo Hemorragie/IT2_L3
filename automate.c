@@ -594,9 +594,72 @@ Automate *miroir( const Automate * automate){
 	return n_automate;
 }
 
-Automate * creer_automate_du_melange(
-	const Automate* automate_1,  const Automate* automate_2
-){
-	A_FAIRE_RETURN( NULL ); 
+Automate * creer_automate_du_melange( const Automate* automate_1, const Automate* automate_2 )
+{
+	Automate * melange = creer_automate();
+	melange->alphabet = creer_union_ensemble( get_alphabet( automate_1 ), get_alphabet( automate_2 ) );
+	int nbEtats_2 = taille_ensemble( get_etats ( automate_2 ) );
+	Ensemble_iterateur etat1;
+
+	// Etats automate_1.
+	for( etat1 = premier_iterateur_ensemble( get_etats( automate_1 ) );
+	! iterateur_ensemble_est_vide( etat1 );
+	etat1 = iterateur_suivant_ensemble( etat1 )
+	)
+	{
+		Ensemble_iterateur etat2;
+		for( etat2 = premier_iterateur_ensemble( get_etats( automate_2 ) );
+		! iterateur_ensemble_est_vide( etat2 );
+		etat2 = iterateur_suivant_ensemble( etat2 )
+		)
+		{
+			int numeroEtat = get_element( etat1 ) * nbEtats_2 + get_element( etat2 );
+			/* Etats Initiaux et Finaux */
+			if( est_un_etat_initial_de_l_automate( automate_1, i ) && 			est_un_etat_initial_de_l_automate( automate_2, j ) )
+			{
+				ajouter_etat_initial( melange, numeroEtat );
+			}
+			if (est_un_etat_final_de_l_automate( automate_1, i) && est_un_etat_final_de_l_automate( automate_2, j) )
+			{
+				ajouter_etat_final( melange, numeroEtat );
+			}
+
+			Ensemble_iterateur lettre;
+			for( lettre = premier_iterateur_ensemble( get_alphabet( melange ));
+			! iterateur_ensemble_est_vide( lettre );
+			lettre = iterateur_suivant_ensemble( lettre )
+			)
+			{
+
+				/* transitions automate_1 */
+				Ensemble * atteignables_1;
+				atteignables_1 = delta1( automate_1, get_element( etat1 ), get_element( lettre ) );
+				Ensemble_iterateur dest;
+				for( dest = premier_iterateur_ensemble( atteignables_1 );
+				! iterateur_ensemble_est_vide( dest );
+				dest = iterateur_suivant_ensemble( dest )
+				)
+				{
+					int numeroDestination = get_element( dest ) * nbEtats_2 + get_element( etat2 );
+					ajouter_transition( melange, numeroEtat, get_element( lettre ), numeroDestination );
+				}
+				/* transitions dans automate_2 : */
+				Ensemble * atteignables_2;
+				atteignables_2 = delta1( automate_2, get_element( etat2 ), get_element( lettre ) );
+				for( dest = premier_iterateur_ensemble( atteignables_2 );
+				! iterateur_ensemble_est_vide( dest );
+				dest = iterateur_suivant_ensemble( dest )
+				)
+				{
+					int numeroDestination = get_element( etat1 ) * nbEtats_2 + 	get_element( dest );
+					ajouter_transition( melange, numeroEtat, get_element( lettre ), numeroDestination );
+				}
+
+			liberer_ensemble( atteignables_1 );
+			liberer_ensemble( atteignables_2 );
+			}
+		}
+	}
+	return melange;
 }
 
