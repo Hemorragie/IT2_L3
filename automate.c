@@ -519,14 +519,9 @@ Automate * creer_union_des_automates(
 	return automate_union;
 }
 
-Ensemble* etats_accessibles( const Automate * automate, int etat ){
-	// On crée un nouvel ensemble	
-	Ensemble* ens = creer_ensemble( NULL, NULL, NULL );
-	
+Ensemble* etats_accessibles( const Automate * automate, int etat ){	
 	// On appelle delta1_total qui pour l'état courant va rechercher pour toute lettre les voisins
-	ens = delta1_total( automate, etat );
-
-	return ens;
+	return delta1_total( automate, etat );;
 }
 
 Ensemble* accessibles( const Automate * automate ){
@@ -568,25 +563,19 @@ void change_transition(  int origine, char lettre, int fin, void* data ){
 
 // Fonction permettant de faire le miroir d'un automate passé en paramètre
 Automate *miroir( const Automate * automate){
+	// On copie l'automate (évite les erreurs de mémoire)
+	Automate* n_automate = copier_automate(automate);
 
-	// On crée l'automate qui sera le miroir
-	Automate* n_automate = creer_automate();
-
+	// NE PASSE PAS AU TESTS DE VALGRIND
 	/* On copie les états finaux de l'automate passé en paramètre dans 
 	 * l'ensemble des états initiaux de l'automate miroir */
-	n_automate->initiaux = copier_ensemble( automate->finaux );
+	//n_automate->initiaux = copier_ensemble( automate->finaux );
 
 	// On fait pareil pour les états finaux avec les états initiaux de l'automate
-	n_automate->finaux = copier_ensemble( automate->initiaux );
+	//n_automate->finaux = copier_ensemble( automate->initiaux );
 
-	// RQ: On aura pu utiliser la fonction swap_ensemble aussi...
-	
-	// On créer et instancie la table de transitions
-	n_automate->transitions = creer_table(
-		( int(*)(const intptr_t, const intptr_t) ) comparer_cle ,
-		( intptr_t (*)( const intptr_t ) ) copier_cle,
-		( void(*)(intptr_t) ) supprimer_cle
-	);
+	// On swap les ensembles	
+	swap_ensemble(n_automate->initiaux, n_automate->finaux);	
 
 	// Puis pour chaque transition, on exécute la fonction change_transition
 	pour_toute_transition( automate, change_transition, n_automate );
