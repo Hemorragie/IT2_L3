@@ -590,7 +590,7 @@ Automate * creer_automate_du_melange( const Automate* automate_1, const Automate
 	Automate * automate_mel = creer_automate();
 	automate_mel->alphabet = creer_union_ensemble( get_alphabet( automate_1 ), get_alphabet( automate_2 ) );
 	
-	int nbEtats_2 = taille_ensemble( get_etats ( automate_2 ) );
+	int nb_etats2 = taille_ensemble( get_etats ( automate_2 ) );
 	Ensemble_iterateur it1;
 
 	// On se déplace dans les états du premier automate
@@ -607,18 +607,20 @@ Automate * creer_automate_du_melange( const Automate* automate_1, const Automate
 				! iterateur_ensemble_est_vide( it2 );
 				it2 = iterateur_suivant_ensemble( it2 ))
 		{
-			int numeroEtat = get_element( it1 ) * nbEtats_2 + get_element( it2 );
+			int num_etat = get_element( it1 ) * nb_etats2 + get_element( it2 );
 			
-			/* Etats Initiaux et Finaux */
+			// Ajout des états initiaux et finaux
 			
-			if( est_un_etat_initial_de_l_automate( automate_1, get_element( it1 ) ) && 			est_un_etat_initial_de_l_automate( automate_2, get_element( it2 ) ) )
+			if(est_un_etat_initial_de_l_automate( automate_1, get_element( it1 ) ) && est_un_etat_initial_de_l_automate( automate_2, get_element( it2)))
 			{
-				ajouter_etat_initial( automate_mel, numeroEtat );
+				ajouter_etat_initial( automate_mel, num_etat );
 			}
-			if (est_un_etat_final_de_l_automate( automate_1, get_element( it1 )) && est_un_etat_final_de_l_automate( automate_2, get_element( it2 )) )
+			if (est_un_etat_final_de_l_automate( automate_1, get_element( it1 )) && est_un_etat_final_de_l_automate( automate_2, get_element( it2 )))
 			{
-				ajouter_etat_final( automate_mel, numeroEtat );
+				ajouter_etat_final( automate_mel, num_etat );
 			}
+
+			// Balayage de l'alphabet
 
 			Ensemble_iterateur lettre;
 			for( lettre = premier_iterateur_ensemble( get_alphabet( automate_mel ));
@@ -628,34 +630,37 @@ Automate * creer_automate_du_melange( const Automate* automate_1, const Automate
 
 				// ajout des transitions de l'automate_1 dans celui du mélange
 				
-				Ensemble * accessible;
-				accessible = delta1( automate_1, get_element( it1 ), get_element( lettre ) );
+				Ensemble * etat_accessible;
+				etat_accessible = delta1( automate_1, get_element( it1 ), get_element( lettre ) );
 				Ensemble_iterateur it;
 				
-				for( it = premier_iterateur_ensemble( accessible );
+				for( it = premier_iterateur_ensemble( etat_accessible );
 						! iterateur_ensemble_est_vide( it );
 						it = iterateur_suivant_ensemble( it ))
 				{
-					int num_ite = get_element( it ) * nbEtats_2 + get_element( it2 );
-					ajouter_transition( automate_mel, numeroEtat, get_element( lettre ), num_ite );
+					int num_ite = get_element( it ) * nb_etats2 + get_element( it2 );
+					ajouter_transition( automate_mel, num_etat, get_element( lettre ), num_ite );
 				}
 				
 				// ajout des transitions de l'automate_2 dans celui du mélange
 				
-				accessible = delta1( automate_2, get_element( it2 ), get_element( lettre ) );
+				etat_accessible = delta1( automate_2, get_element( it2 ), get_element( lettre ) );
 				
-				for( it = premier_iterateur_ensemble( accessible );
+				for( it = premier_iterateur_ensemble( etat_accessible );
 						! iterateur_ensemble_est_vide( it );
 						it = iterateur_suivant_ensemble( it ))
 				{
-					int num_ite = get_element( it1 ) * nbEtats_2 + 	get_element( it );
-					ajouter_transition( automate_mel, numeroEtat, get_element( lettre ), num_ite );
+					int num_ite = get_element( it1 ) * nb_etats2 + 	get_element( it );
+					ajouter_transition( automate_mel, num_etat, get_element( lettre ), num_ite );
 				}
 
-			liberer_ensemble( accessible );
+			// On libère la mémoire pour l'ensemble des états accessibles.
+			
+			liberer_ensemble( etat_accessible );
 			}
 		}
 	}
 	return automate_mel;
 }
+
 
